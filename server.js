@@ -1,34 +1,16 @@
 /**
- * @file study connect
+ * @file study connect, use connect complete some mission: 1.托管静态文件 2.处理错误以及损坏或者不存在的URL 3.处理不同类型的请求
+ * 由于connect版本更新至3.x，故connect.static中间件已被移除，现通过安装serve-static解决
  */
 
-let http = require('http');
-let fs = require('fs');
+let connect = require('connect');
+let serveStatic = require('serve-static');
 
-let server = http.createServer((req, res) => {
+let app = connect();
+// or let server = http.createServer(app);
 
-    let serve = (path, type) => {
-        res.writeHead(200, {'Content-Type': type});
-        fs.createReadStream(path).pipe(res);
-    };
+// 文件托管
+app.use(serveStatic(__dirname + '/website'));
 
-    if ('GET' === req.method && '/images' === req.url.substr(0, 7) && '.jpg' === req.url.substr(-4)) {
-        fs.stat(__dirname + req.url, (err, stat) => {
-            if (err || !stat.isFile()) {
-                res.writeHead(404);
-                res.end('404 NOT FOUND.');
-                return;
-            }
-            serve(__dirname + req.url, 'application/jpg');
-        });
-    } else if ('GET' === req.method && '/' === req.url) {
-        serve(__dirname + '/index.html', 'text/html');
-    } else {
-        console.log(req.url);
-        res.writeHead(404);
-        res.end('404 NOT FOUND.');
-    }
-});
-
-server.listen(3000);
+app.listen(3000);
 
